@@ -1,7 +1,19 @@
 import requests
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
+import threading
+from flask import Flask
 
+app_web = Flask(__name__)
+
+@app_web.route("/")
+def home():
+    return "Bot is running!"
+
+def run_web():
+    app_web.run(host="0.0.0.0", port=10000)
+
+threading.Thread(target=run_web).start()
 # ================== TOKENS ==================
 import os
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")

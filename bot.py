@@ -41,15 +41,29 @@ def generate_text(prompt):
     }
 
     data = {
-        "model": "llama-3.1-8b-instant",
-        "messages": [
-            {
-                "role": "user",
-                "content": f"Write a viral YouTube Shorts narration on: {prompt}. Start with a shocking hook. Use very short sentences. No characters, no scenes, no dialogues. Only fast-paced narration. Build curiosity. Keep it under 80 words. End with a strong twist or question."
-            }
-        ]
-    }
+    "model": "llama-3.1-8b-instant",
+    "messages": [
+        {
+            "role": "user",
+            "content": f"""Create a HIGHLY viral YouTube Shorts script on: {prompt}.
 
+Rules:
+- Start with a shocking hook in first 2 seconds
+- Use simple, powerful English
+- Create curiosity and suspense
+- Add pattern interrupt every 2-3 lines
+- Keep sentences short
+- End with a mind-blowing twist or question
+
+Format:
+(0:01-0:05) Hook
+(0:06-0:10) Build curiosity
+(0:11-0:20) Deep reveal
+(0:21-0:30) Twist ending
+"""
+        }
+    ]
+    }
     try:
         response = requests.post(url, headers=headers, json=data)
 

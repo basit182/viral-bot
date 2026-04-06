@@ -57,20 +57,24 @@ Otherwise, behave like ChatGPT:
 
 User: {prompt}
 """
+"messages": [
+    {
+        "role": "user",
+        "content": f"""
+You are a powerful AI assistant.
 
-Rules:
-- Start with a shocking hook in first 2 seconds
-- Use simple, powerful English
-- Create curiosity and suspense
-- Add pattern interrupt every 2-3 lines
-- Keep sentences short
-- End with a mind-blowing twist or question
+If the user asks for a viral script, create a HIGHLY viral YouTube Shorts script.
 
-Format:
-(0:01-0:05) Hook
-(0:06-0:10) Build curiosity
-(0:11-0:20) Deep reveal
-(0:21-0:30) Twist ending
+Otherwise, behave like ChatGPT:
+- Answer clearly
+- Be helpful
+- Give smart and human-like responses
+
+User: {prompt}
+"""
+    }
+    ]
+"""
 """
         }
     ]

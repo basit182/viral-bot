@@ -2,10 +2,11 @@ import requests
 import os
 import threading
 from flask import Flask
+from datetime import date
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
-# ================== WEB SERVER (Render/Railway keep alive) ==================
+# ================= WEB SERVER =================
 app_web = Flask(__name__)
 
 @app_web.route("/")
@@ -17,27 +18,41 @@ def run_web():
 
 threading.Thread(target=run_web).start()
 
-# ================== TOKENS ==================
+# ================= TOKENS =================
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-# ================== START ==================
+# ================= LIMIT SYSTEM =================
+user_usage = {}
+FREE_LIMIT = 3
+
+def check_limit(user_id):
+    today = str(date.today())
+
+    if user_id not in user_usage:
+        user_usage[user_id] = {"date": today, "count": 0}
+
+    if user_usage[user_id]["date"] != today:
+        user_usage[user_id] = {"date": today, "count": 0}
+
+    if user_usage[user_id]["count"] >= FREE_LIMIT:
+        return False
+
+    user_usage[user_id]["count"] += 1
+    return True
+
+# ================= START =================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "🎬 Viral Script + AI Bot\n\n"
+        "🔥 ViralForge AI\n\n"
         "Send anything:\n"
-        "- Ask questions (like ChatGPT)\n"
-        "- Ask for scripts (shorts/reels/long videos)\n\n"
-        "🔥 Example:\n"
-        "👉 'What is AI?'\n"
-        "👉 'Make viral script on black hole'"
+        "• Ask questions (like ChatGPT)\n"
+        "• Get viral scripts\n"
+        "• Generate images\n\n"
+        "⚡ Free limit: 3/day"
     )
 
-# ================== HELP ==================
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("बस topic bhejo, main sab handle karunga 😎")
-
-# ================== AI FUNCTION ==================
+# ================= AI TEXT =================
 def generate_text(prompt):
     url = "https://api.groq.com/openai/v1/chat/completions"
 
@@ -52,20 +67,18 @@ def generate_text(prompt):
             {
                 "role": "user",
                 "content": f"""
-You are an advanced AI assistant like ChatGPT.
+You are an advanced AI assistant.
 
 1. If user asks normal questions:
 - Answer clearly
 - Be helpful, smart, human-like
-- Give practical answers
 
-2. If user asks for scripts/content:
+2. If user asks for scripts or content:
 - Create HIGHLY engaging viral scripts
 - Strong hook in first 2 seconds
-- Short, powerful sentences
-- Build curiosity & suspense
-- Add pattern interrupts
-- End with twist or strong impact
+- Short powerful lines
+- Add curiosity and suspense
+- End with twist
 
 3. Shorts format:
 (0:01 - 0:05) Hook  
@@ -74,14 +87,7 @@ You are an advanced AI assistant like ChatGPT.
 (0:21 - 0:30) Twist  
 
 4. Long videos:
-- Full structured script
-- Intro → Build-up → Explanation → Climax → Ending
-- High retention style
-
-Always:
-- Be engaging
-- Avoid boring tone
-- Sound like real human
+- Structured script (intro → climax → ending)
 
 User: {prompt}
 """
@@ -101,27 +107,44 @@ User: {prompt}
     except Exception as e:
         return f"❌ Error: {str(e)}"
 
-# ================== MESSAGE HANDLER ==================
+# ================= IMAGE =================
+def generate_image(prompt):
+    return f"https://image.pollinations.ai/prompt/{prompt}"
+
+# ================= MESSAGE HANDLER =================
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
     user_text = update.message.text
 
-    msg = await update.message.reply_text("⏳ Generating...")
+    # limit check
+    if not check_limit(user_id):
+        await update.message.reply_text(
+            "🚫 Free limit reached (3/day)\n\n💰 Upgrade to premium: ₹99/month"
+        )
+        return
 
+    msg = await update.message.reply_text("⏳ Processing...")
+
+    # image detection
+    if "image" in user_text.lower() or "generate image" in user_text.lower():
+        img_url = generate_image(user_text)
+        await update.message.reply_photo(photo=img_url)
+        return
+
+    # normal AI
     reply = generate_text(user_text)
-
     await msg.edit_text(f"✅ Done!\n\n{reply}")
 
-# ================== MAIN ==================
+# ================= MAIN =================
 def main():
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("help", help_command))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     print("🤖 Bot is running...")
     app.run_polling()
 
-# ================== RUN ==================
+# ================= RUN =================
 if __name__ == "__main__":
     main()

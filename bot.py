@@ -24,7 +24,7 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 # ================= LIMIT SYSTEM =================
 user_usage = {}
-FREE_LIMIT = 3
+FREE_LIMIT = 10
 
 def check_limit(user_id):
     today = str(date.today())
@@ -49,7 +49,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "• Ask questions (like ChatGPT)\n"
         "• Get viral scripts\n"
         "• Generate images\n\n"
-        "⚡ Free limit: 3/day"
+        "⚡ Free limit: 7/day"
     )
 
 # ================= AI TEXT =================
@@ -119,7 +119,19 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # limit check
     if not check_limit(user_id):
         await update.message.reply_text(
-            "🚫 Free limit reached (3/day)\n\n💰 Upgrade to premium: ₹99/month"
+            f"""🚫 Free limit reached ({FREE_LIMIT}/day)
+
+But wait...
+
+Your next viral idea could blow up 🚀
+
+Unlock:
+⚡ Unlimited scripts
+🔥 Better viral hooks
+🎯 High engagement ideas
+
+💎 Premium: ₹99/month
+"""
         )
         return
 

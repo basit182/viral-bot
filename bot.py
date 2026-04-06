@@ -49,7 +49,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "• Ask questions (like ChatGPT)\n"
         "• Get viral scripts\n"
         "• Generate images\n\n"
-        "⚡ Free limit: 7/day"
+        "⚡ Free limit: 10/day"
     )
 
 # ================= AI TEXT =================

@@ -1,9 +1,11 @@
 import requests
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
+import os
 import threading
 from flask import Flask
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
+# ================== WEB SERVER (Render/Railway keep alive) ==================
 app_web = Flask(__name__)
 
 @app_web.route("/")
@@ -14,24 +16,28 @@ def run_web():
     app_web.run(host="0.0.0.0", port=10000)
 
 threading.Thread(target=run_web).start()
+
 # ================== TOKENS ==================
-import os
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
 # ================== START ==================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "🎬 Viral Script Bot\n\n"
-        "Send any topic (e.g. 'Bermuda Triangle')\n\n"
-        "⚡ Free: 2 scripts/day\n"
-        "💰 Premium: Unlimited"
+        "🎬 Viral Script + AI Bot\n\n"
+        "Send anything:\n"
+        "- Ask questions (like ChatGPT)\n"
+        "- Ask for scripts (shorts/reels/long videos)\n\n"
+        "🔥 Example:\n"
+        "👉 'What is AI?'\n"
+        "👉 'Make viral script on black hole'"
     )
 
 # ================== HELP ==================
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("बस topic bhejo, main script bana dunga 😏")
+    await update.message.reply_text("बस topic bhejo, main sab handle karunga 😎")
 
-# ================== AI ==================
+# ================== AI FUNCTION ==================
 def generate_text(prompt):
     url = "https://api.groq.com/openai/v1/chat/completions"
 
@@ -41,71 +47,48 @@ def generate_text(prompt):
     }
 
     data = {
-    "model": "llama-3.1-8b-instant",
-    "messages": [
-        {
-            "role": "user",
-            "content": f"""You are an advanced AI assistant like ChatGPT.
+        "model": "llama-3.1-8b-instant",
+        "messages": [
+            {
+                "role": "user",
+                "content": f"""
+You are an advanced AI assistant like ChatGPT.
 
-Your behavior:
-
-1. If the user asks normal questions:
+1. If user asks normal questions:
 - Answer clearly
-- Be helpful, smart, and human-like
-- Explain simply but effectively
-- Give practical and useful answers
+- Be helpful, smart, human-like
+- Give practical answers
 
-2. If the user asks about video ideas, scripts, reels, shorts, or content:
-- Create HIGHLY engaging and viral content
-- Use strong hooks in the first 2 seconds
-- Keep sentences short and powerful
-- Build curiosity and suspense
+2. If user asks for scripts/content:
+- Create HIGHLY engaging viral scripts
+- Strong hook in first 2 seconds
+- Short, powerful sentences
+- Build curiosity & suspense
 - Add pattern interrupts
-- End with a twist, question, or strong impact
+- End with twist or strong impact
 
-3. For YouTube Shorts / Reels scripts:
-Format like this:
+3. Shorts format:
 (0:01 - 0:05) Hook  
 (0:06 - 0:10) Build curiosity  
 (0:11 - 0:20) Main reveal  
-(0:21 - 0:30) Twist / ending  
+(0:21 - 0:30) Twist  
 
-4. For long videos:
-- Give structured script
-- Include intro, build-up, explanation, climax, ending
-- Keep audience retention high
+4. Long videos:
+- Full structured script
+- Intro → Build-up → Explanation → Climax → Ending
+- High retention style
 
-5. Always:
-- Be confident
+Always:
 - Be engaging
-- Avoid boring answers
-- Sound like a real intelligent human
+- Avoid boring tone
+- Sound like real human
 
 User: {prompt}
 """
-"""
-"messages": [
-    {
-        "role": "user",
-        "content": f"""
-You are a powerful AI assistant.
-
-If the user asks for a viral script, create a HIGHLY viral YouTube Shorts script.
-
-Otherwise, behave like ChatGPT:
-- Answer clearly
-- Be helpful
-- Give smart and human-like responses
-
-User: {prompt}
-"""
+            }
+        ]
     }
-    ]
-"""
-"""
-        }
-    ]
-    }
+
     try:
         response = requests.post(url, headers=headers, json=data)
 
@@ -118,7 +101,7 @@ User: {prompt}
     except Exception as e:
         return f"❌ Error: {str(e)}"
 
-# ================== MESSAGE ==================
+# ================== MESSAGE HANDLER ==================
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_text = update.message.text
 

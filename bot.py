@@ -45,7 +45,18 @@ def generate_text(prompt):
     "messages": [
         {
             "role": "user",
-            "content": f"""Create a HIGHLY viral YouTube Shorts script on: {prompt}.
+            "content": f"""
+You are a powerful AI assistant.
+
+If the user asks for a viral script, create a HIGHLY viral YouTube Shorts script with hooks, curiosity, and strong retention.
+
+Otherwise, behave like ChatGPT:
+- Answer clearly
+- Be helpful
+- Give smart and human-like responses
+
+User: {prompt}
+"""
 
 Rules:
 - Start with a shocking hook in first 2 seconds
